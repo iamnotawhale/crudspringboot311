@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>All users</title>
+</head>
+<body>
+<div th:align="right">
+    Your login is: <b th:inline="text"> [[${#httpServletRequest.remoteUser}]] </b>
+    <form th:action="@{/logout}" method="POST">
+        <input type="submit" value="Logout"/>
+    </form>
+</div>
+<h2>All users</h2>
+<hr/>
+<table>
+    <thead>
+    <tr>
+        <th> Id</th>
+        <th> Name</th>
+        <th> Email</th>
+        <th> Password</th>
+        <th> Roles</th>
+        <th> Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+        <td><a th:href="@{/admin/users/{id}(id=${user.getId()})}" th:text="${user.getId()}">Id</a></td>
+        <td><span th:text="${user.getLogin()}"> Name </span></td>
+        <td><span th:text="${user.getEmail()}"> Email </span></td>
+        <td><span th:text="${user.getPassword()}"> Password </span></td>
+        <td><span th:text="${user.getRoles()}"> Roles </span></td>
+        <td>
+            <a th:href="@{/admin/users/{id}/edit(id=${user.getId()})}">edit</a>
+            <a th:href="@{/admin/users/{id}/delete(id=${user.getId()})}">delete</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<hr/>
+<a href="/admin/new">Add new user</a>
+</body>
+</html>
