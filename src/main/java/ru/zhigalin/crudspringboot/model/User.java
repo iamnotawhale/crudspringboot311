@@ -1,6 +1,8 @@
 package ru.zhigalin.crudspringboot.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -9,6 +11,8 @@ import java.util.Collection;
 import java.util.Set;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
@@ -31,43 +35,6 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
-    public User() {
-    }
-
-    public User(Long id, String login, String password, String email, Set<Role> roles) {
-        this.id = id;
-        this.login = login;
-        this.password = password;
-        this.email = email;
-        this.roles = roles;
-    }
-
-    public User(Long id, String login, String password, String email) {
-        this.id = id;
-        this.login = login;
-        this.password = password;
-        this.email = email;
-    }
-
-    public User(String login, String password, String email) {
-        this.login = login;
-        this.password = password;
-        this.email = email;
-    }
-
-    public User(Long id, String login, String password, Set<Role> roles) {
-        this.id = id;
-        this.login = login;
-        this.password = password;
-        this.roles = roles;
-    }
-
-    public User(String login, String password, String email, Set<Role> roles) {
-        this.login = login;
-        this.password = password;
-        this.email = email;
-        this.roles = roles;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
