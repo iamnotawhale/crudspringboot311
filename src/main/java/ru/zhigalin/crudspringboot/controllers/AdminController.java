@@ -1,7 +1,7 @@
 package ru.zhigalin.crudspringboot.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,13 +32,20 @@ public class AdminController {
     }
 
 
-    @GetMapping("/users")
-    public String allUsers(Model model) {
+    @GetMapping
+    public String allUsers(Model model, Authentication authentication){
+        User user = (User) authentication.getPrincipal();
+        UserDto userDto = new UserDto();
+        userDto.setEmail(user.getEmail());
+        userDto.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
+
+        model.addAttribute("currentUser", userDto);
+        model.addAttribute("newUser", new UserDto());
         model.addAttribute("users", userService.findAll());
         return "users";
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/{id}")
     public String getById(@PathVariable("id") Long id, Model model) {
         model.addAttribute("user", userService.findById(id));
         return "user";
@@ -46,42 +53,43 @@ public class AdminController {
 
     @GetMapping("/new")
     public String newUser(@ModelAttribute("user") UserDto userDto) {
-        return "addUser";
+        return "redirect:/admin";
     }
 
     @PostMapping()
     public String add(@ModelAttribute("user") UserDto userDto) {
-        userService.save(fromDto(userDto));
-        return "redirect:/admin/users";
+        User user = fromDto(userDto);
+        user.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
+        userService.save(user);
+        return "redirect:/admin";
     }
 
-    @GetMapping("/users/{id}/edit")
+    @GetMapping("/{id}/edit")
     public String edit(@PathVariable("id") Long id, Model model) {
         User user = userService.findById(id);
         UserDto userDto = toDto(user);
         model.addAttribute("user", userDto);
-        return "editUser";
+        return "redirect:/admin";
     }
 
-    @PostMapping("/users/{id}")
+    @PostMapping("/{id}")
     public String update(@PathVariable("id") Long id, @ModelAttribute("user") UserDto userDto) {
         User user = fromDto(userDto);
         user.setId(id);
+        user.setPassword(userDto.getPassword());
         userService.save(user);
-        return "redirect:/admin/users";
+        return "redirect:/admin";
     }
 
-    @GetMapping("/users/{id}/delete")
+    @GetMapping("/{id}/delete")
     public String delete(@PathVariable("id") Long id) {
         userService.delete(userService.findById(id));
-        return "redirect:/admin/users";
+        return "redirect:/admin";
     }
 
     public User fromDto(UserDto userDto) {
         User user = new User();
-
         user.setLogin(userDto.getLogin());
-        user.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
         user.setEmail(userDto.getEmail());
         user.setRoles(userDto.getRoles() == null ? null : userDto.getRoles().stream()
                 .map(roleService::findRoleByName)

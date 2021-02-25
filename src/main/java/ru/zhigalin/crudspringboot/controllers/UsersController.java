@@ -2,16 +2,16 @@ package ru.zhigalin.crudspringboot.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.zhigalin.crudspringboot.model.User;
 import ru.zhigalin.crudspringboot.service.UserService;
 
 
 @Controller
-@RequestMapping("/user/")
+@RequestMapping("/user")
 public class UsersController {
 
     private final UserService userService;
@@ -21,11 +21,11 @@ public class UsersController {
         this.userService = userService;
     }
 
-    @GetMapping(value = "hello")
-    public String userInfo(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        model.addAttribute("user", userService.findByLogin(auth.getName()));
+    @GetMapping
+    public String userInfo(Model model, Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        model.addAttribute("user", user);
 
-        return "hello";
+        return "user";
     }
 }
