@@ -1,4 +1,4 @@
-package ru.zhigalin.crudspringboot.model;
+package ru.zhigalin.crudspringboot.dto;
 
 
 

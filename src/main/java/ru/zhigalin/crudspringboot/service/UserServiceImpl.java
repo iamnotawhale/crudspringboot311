@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService, RoleService {
 
     @Transactional
     @Override
-    public <S extends User> S save(S user) {
+    public User save(User user) {
         return userRepository.save(user);
     }
 

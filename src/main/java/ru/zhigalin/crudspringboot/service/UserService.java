@@ -3,7 +3,7 @@ package ru.zhigalin.crudspringboot.service;
 import ru.zhigalin.crudspringboot.model.User;
 
 public interface UserService {
-    <S extends User> S save(S s);
+    User save(User user);
 
     Iterable<User> findAll();
 

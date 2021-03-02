@@ -8,9 +8,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.zhigalin.crudspringboot.model.Role;
 import ru.zhigalin.crudspringboot.model.User;
-import ru.zhigalin.crudspringboot.model.UserDto;
+import ru.zhigalin.crudspringboot.dto.UserDto;
 import ru.zhigalin.crudspringboot.service.RoleService;
 import ru.zhigalin.crudspringboot.service.UserService;
+import ru.zhigalin.crudspringboot.transfer.EntityDtoTransfer;
 
 import java.util.stream.Collectors;
 
@@ -58,7 +59,8 @@ public class AdminController {
 
     @PostMapping()
     public String add(@ModelAttribute("user") UserDto userDto) {
-        User user = fromDto(userDto);
+        EntityDtoTransfer entityDtoTransfer = new EntityDtoTransfer(roleService);
+        User user = entityDtoTransfer.fromDto(userDto);
         user.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
         userService.save(user);
         return "redirect:/admin";
@@ -66,15 +68,17 @@ public class AdminController {
 
     @GetMapping("/{id}/edit")
     public String edit(@PathVariable("id") Long id, Model model) {
+        EntityDtoTransfer entityDtoTransfer = new EntityDtoTransfer(roleService);
         User user = userService.findById(id);
-        UserDto userDto = toDto(user);
+        UserDto userDto = entityDtoTransfer.toDto(user);
         model.addAttribute("user", userDto);
         return "redirect:/admin";
     }
 
     @PostMapping("/{id}")
     public String update(@PathVariable("id") Long id, @ModelAttribute("user") UserDto userDto) {
-        User user = fromDto(userDto);
+        EntityDtoTransfer entityDtoTransfer = new EntityDtoTransfer(roleService);
+        User user = entityDtoTransfer.fromDto(userDto);
         user.setId(id);
         user.setPassword(userDto.getPassword());
         userService.save(user);
@@ -85,28 +89,5 @@ public class AdminController {
     public String delete(@PathVariable("id") Long id) {
         userService.delete(userService.findById(id));
         return "redirect:/admin";
-    }
-
-    public User fromDto(UserDto userDto) {
-        User user = new User();
-        user.setLogin(userDto.getLogin());
-        user.setEmail(userDto.getEmail());
-        user.setRoles(userDto.getRoles() == null ? null : userDto.getRoles().stream()
-                .map(roleService::findRoleByName)
-                .collect(Collectors.toSet())
-        );
-        return user;
-    }
-
-    public UserDto toDto(User user) {
-        UserDto userDto = new UserDto();
-        userDto.setId(user.getId());
-        userDto.setLogin(user.getLogin());
-        userDto.setPassword(user.getPassword());
-        userDto.setEmail(user.getEmail());
-        userDto.setRoles(user.getRoles() == null ? null : user.getRoles().stream()
-                .map(Role::getLogin)
-                .collect(Collectors.toSet()));
-        return userDto;
     }
 }
